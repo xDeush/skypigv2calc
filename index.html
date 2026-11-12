@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skyward Pig Cannon V2 Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400;62..125,500;62..125,800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #dce8f1;
+    --ink: #17263a;
+    --soft: #5d6f84;
+    --line: #a9bccd;
+    --tnt: #c4342a;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--sky); }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: "Archivo", sans-serif;
+    font-stretch: 100%;
+    font-size: 18px;
+    line-height: 1.5;
+    padding: 9vh 24px 80px;
+  }
+  main { max-width: 620px; margin: 0 auto; }
+
+  h1 {
+    font-weight: 500;
+    font-stretch: 70%;
+    font-size: 15px;
+    letter-spacing: 0.01em;
+    margin: 0 0 15px;
+    color: var(--soft);
+  }
+
+  .sentence { font-size: 26px; line-height: 1.35; margin: 0; font-weight: 400; }
+  .sentence input {
+    font: inherit;
+    font-weight: 500;
+    color: var(--ink);
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid var(--ink);
+    padding: 0 2px;
+    width: 8.4em;
+    text-align: center;
+  }
+  .sentence input:focus { outline: none; border-bottom-color: var(--tnt); }
+
+  .answer {
+    font-weight: 800;
+    font-stretch: 62%;
+    font-size: clamp(64px, 15vw, 128px);
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    color: var(--tnt);
+    margin: 14px 0 40px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 6px 24px; font-size: 16px; }
+  dt { color: var(--soft); }
+  dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+
+  section { margin-top: 72px; }
+  h2 { font-size: 16px; font-weight: 500; margin: 0 0 14px; }
+
+  .reverse { font-size: 20px; }
+  .reverse input { width: 4.5em; }
+  .reverse b { font-weight: 800; font-stretch: 75%; color: var(--tnt); }
+
+  .settings label { display: grid; grid-template-columns: 1fr 10em; gap: 24px; align-items: baseline; font-size: 16px; color: var(--soft); padding: 4px 0; }
+  .settings input {
+    font: inherit; color: var(--ink); text-align: right;
+    background: transparent; border: 0; border-bottom: 1px solid var(--line); padding: 2px 0;
+  }
+  .settings input:focus { outline: none; border-bottom-color: var(--ink); }
+
+  .note { font-size: 15px; color: var(--soft); max-width: 34em; }
+  .note p { margin: 0 0 10px; }
+
+  @media (max-width: 520px) {
+    .sentence { font-size: 22px; }
+    .settings label { grid-template-columns: 1fr 7.5em; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Skyward Pig Cannon V2 by xdeush, farcoolhat and minzbaer</h1>
+
+  <p class="sentence">To launch the pig <input id="target" type="text" inputmode="numeric" value="2,500,000,001" aria-label="Target height in blocks"> blocks up, charge for</p>
+  <div class="answer" id="time">–</div>
+
+  <dl>
+    <dt>Ticks of charging</dt><dd id="ticks">–</dd>
+    <dt>Explosions (50 TNT each)</dt><dd id="pulses">–</dd>
+    <dt>Motion Y needed</dt><dd id="v0">–</dd>
+    <dt>Height actually reached</dt><dd id="hreal">–</dd>
+    <dt>Flight time to the top</dt><dd id="flight">–</dd>
+    <dt>Sideways drift, X / Z</dt><dd id="drift">–</dd>
+  </dl>
+
+  <section>
+    <h2>The other way round</h2>
+    <p class="sentence reverse">Charging for <input id="secs" type="text" inputmode="decimal" value="60" aria-label="Charge time in seconds"> seconds sends the pig <b id="hfromt">–</b> blocks up.</p>
+  </section>
+
+  <section class="settings">
+    <h2>Your cannon</h2>
+    <label>Motion Y per explosion <input id="dy" type="text" inputmode="decimal" value="44.7298063"></label>
+    <label>Motion X per explosion <input id="dx" type="text" inputmode="decimal" value="-0.8354211009"></label>
+    <label>Motion Z per explosion <input id="dz" type="text" inputmode="decimal" value="-0.2784732355"></label>
+    <label>Ticks between explosions <input id="per" type="text" inputmode="decimal" value="3"></label>
+    <label>Server TPS <input id="tps" type="text" inputmode="decimal" value="20"></label>
+  </section>
+
+  <section class="note">
+    <h2>How it's calculated</h2>
+    <p>Every tick the pig first moves by its motion, then motion Y becomes (Y − 0.08) × 0.98 and X/Z are multiplied by 0.91. The height is the sum of every upward step, which works out to roughly 50 × motion − 3.92 × ticks of flight.</p>
+    <p>Check: one explosion (motion 44.65) gives 1,744 blocks, matching the measured ~1,750.</p>
+    <p>Assumes motion adds up with no loss while charging. Per-explosion motion Y is 44.6514 − (−0.0784) = 44.7298.</p>
+  </section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const num = id => parseFloat(String($(id).value).replace(/[\s,_]/g, ''));
+const fmt = (x, d = 0) => isFinite(x) ? x.toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: d }) : '–';
+
+function fly(vy) {
+  let y = 0, n = 0;
+  while (vy > 0 && n < 100000) { y += vy; vy = (vy - 0.08) * 0.98; n++; }
+  return { h: y, n };
+}
+const horiz = (v, n) => v * (1 - Math.pow(0.91, n)) / 0.09;
+
+function dur(sec) {
+  if (!isFinite(sec) || sec < 0) return '–';
+  const d = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60), s = Math.round(sec % 60);
+  const parts = [];
+  if (d) parts.push(d + 'd');
+  if (d || h) parts.push(h + 'h');
+  if (d || h || m) parts.push(m + 'm');
+  if (!d) parts.push(s + 's');
+  return parts.join(' ');
+}
+
+function calc() {
+  const H = num('target'), dy = num('dy'), dx = num('dx'), dz = num('dz'), per = num('per'), tps = num('tps');
+  if (H > 0 && dy > 0) {
+    let lo = 0, hi = 1;
+    while (fly(hi).h < H && hi < 1e300) hi *= 2;
+    for (let i = 0; i < 200; i++) { const mid = (lo + hi) / 2; if (fly(mid).h >= H) hi = mid; else lo = mid; }
+    const pulses = Math.ceil(hi / dy);
+    const f = fly(pulses * dy);
+    const ticks = pulses * per;
+    $('time').textContent = dur(ticks / tps);
+    $('ticks').textContent = fmt(ticks);
+    $('pulses').textContent = fmt(pulses);
+    $('v0').textContent = fmt(hi, 2);
+    $('hreal').textContent = fmt(f.h);
+    $('flight').textContent = fmt(f.n) + ' ticks, ' + dur(f.n / tps);
+    $('drift').textContent = fmt(horiz(pulses * dx, f.n)) + ' / ' + fmt(horiz(pulses * dz, f.n));
+  } else {
+    ['time','ticks','pulses','v0','hreal','flight','drift'].forEach(id => $(id).textContent = '–');
+  }
+  const p2 = Math.floor(num('secs') * tps / per);
+  $('hfromt').textContent = p2 >= 0 ? fmt(fly(p2 * dy).h) : '–';
+}
+document.querySelectorAll('input').forEach(i => i.addEventListener('input', calc));
+calc();
+</script>
+</body>
+</html>
