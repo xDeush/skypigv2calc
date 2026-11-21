@@ -91,7 +91,7 @@
 </head>
 <body>
 <main>
-  <h1>Skyward Pig Cannon V2 by xdeush, farcoolhat and minzbaer</h1>
+  <h1>Skyward Pig Cannon V2.5</h1>
 
   <p class="sentence">To launch the pig <input id="target" type="text" inputmode="numeric" value="2,500,000,001" aria-label="Target height in blocks"> blocks up, charge for</p>
   <div class="answer" id="time">–</div>
@@ -112,9 +112,9 @@
 
   <section class="settings">
     <h2>Your cannon</h2>
-    <label>Motion Y per explosion <input id="dy" type="text" inputmode="decimal" value="44.7298063"></label>
-    <label>Motion X per explosion <input id="dx" type="text" inputmode="decimal" value="-0.8354211009"></label>
-    <label>Motion Z per explosion <input id="dz" type="text" inputmode="decimal" value="-0.2784732355"></label>
+    <label>Motion Y per explosion <input id="dy" type="text" inputmode="decimal" value="49.6578912"></label>
+    <label>Motion X per explosion <input id="dx" type="text" inputmode="decimal" value="0.0011732"></label>
+    <label>Motion Z per explosion <input id="dz" type="text" inputmode="decimal" value="-2.4382361"></label>
     <label>Ticks between explosions <input id="per" type="text" inputmode="decimal" value="3"></label>
     <label>Server TPS <input id="tps" type="text" inputmode="decimal" value="20"></label>
   </section>
@@ -122,8 +122,8 @@
   <section class="note">
     <h2>How it's calculated</h2>
     <p>Every tick the pig first moves by its motion, then motion Y becomes (Y − 0.08) × 0.98 and X/Z are multiplied by 0.91. The height is the sum of every upward step, which works out to roughly 50 × motion − 3.92 × ticks of flight.</p>
-    <p>Check: one explosion (motion 44.65) gives 1,744 blocks, matching the measured ~1,750.</p>
-    <p>Assumes motion adds up with no loss while charging. Per-explosion motion Y is 44.6514 − (−0.0784) = 44.7298.</p>
+    <p>Check: for V2.5, the four measured Y changes average about 49.6579 per explosion. The first state change is 49.7490.</p>
+    <p>Assumes motion adds up with no loss while charging. V2.5 defaults are based on explosions occurring every 3 GT.</p>
   </section>
 </main>
 
